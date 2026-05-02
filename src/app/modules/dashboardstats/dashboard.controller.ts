@@ -57,7 +57,14 @@ const getDashboardStats = catchAsync(async (req: Request, res: Response) => {
     const topSellingProducts = await Product.aggregate([
       { $sort: { sold: -1 } },
       { $limit: 5 },
-      { $project: { name: 1, price: 1, sold: 1, images: { $slice: ['$images', 1] } } }
+      { $project: { name: 1, price: 1, sold: 1, images_urls: { $slice: ['$images_urls', 1] } } }
+    ]);
+
+    // Get most clicked products
+    const mostClickedProducts = await Product.aggregate([
+      { $sort: { totalClicks: -1 } },
+      { $limit: 5 },
+      { $project: { name: 1, price: 1, totalClicks: 1, images_urls: { $slice: ['$images_urls', 1] } } }
     ]);
 
     const stats = {
@@ -69,6 +76,7 @@ const getDashboardStats = catchAsync(async (req: Request, res: Response) => {
       },
       recentOrders,
       topSellingProducts,
+      mostClickedProducts,
     };
 
     sendResponse(res, {
