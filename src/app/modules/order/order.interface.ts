@@ -30,6 +30,7 @@ export interface CreateOrderData {
   guestName?: string;
   transactionId?: string;
   whatsappNumber?: string;
+  extraInfo?: string;
 }
 
 export interface OrderResponse {
@@ -47,6 +48,7 @@ export interface Order {
   guestName?: string;
   transactionId?: string;
   whatsappNumber?: string;
+  extraInfo?: string;
   items: OrderItem[];
   totalAmount: number;
   shippingAddress: ShippingAddress;

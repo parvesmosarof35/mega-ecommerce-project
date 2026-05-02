@@ -20,6 +20,7 @@ const normalizeOrder = (doc: any): Order => {
     guestName: doc?.guestName,
     transactionId: doc?.transactionId,
     whatsappNumber: doc?.whatsappNumber,
+    extraInfo: doc?.extraInfo,
     items,
   } as Order;
 };
@@ -77,6 +78,7 @@ class OrderService {
         guestName: orderData.guestName,
         transactionId: orderData.transactionId,
         whatsappNumber: orderData.whatsappNumber,
+        extraInfo: orderData.extraInfo,
         items: orderData.items,
         totalAmount: orderData.totalAmount,
         shippingAddress: orderData.shippingAddress,

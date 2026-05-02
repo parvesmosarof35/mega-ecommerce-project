@@ -24,6 +24,10 @@ const OrderSchema = new Schema<Order>(
       type: String,
       required: false,
     },
+    extraInfo: {
+      type: String,
+      required: false,
+    },
     items: [
       {
         productId: {

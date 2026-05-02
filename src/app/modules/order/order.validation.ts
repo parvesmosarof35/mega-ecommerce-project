@@ -54,6 +54,7 @@ const createGuestOrderSchema = z.object({
     guestName: z.string({ message: "Guest name is required" }),
     transactionId: z.string({ message: "Transaction ID is required" }),
     whatsappNumber: z.string({ message: "WhatsApp number is required" }),
+    extraInfo: z.string().optional(),
     items: z.array(z.object({
       productId: z.string({ message: "Product ID is required" }),
       quantity: z.number({ message: "Quantity is required" }).min(1, { message: "Quantity must be at least 1" }),
