@@ -1,5 +1,7 @@
+import { Types } from "mongoose";
+
 export interface OrderItem {
-  productId: string;
+  productId: Types.ObjectId;
   quantity: number;
   price: number;
   name?: string;
@@ -12,16 +14,22 @@ export interface ShippingAddress {
   state: string;
   postalCode: string;
   country: string;
+  phone: string;
+  email?: string;
 }
 
 export interface CreateOrderData {
-  customerId: string;
+  customerId?: Types.ObjectId;
   items: OrderItem[];
   totalAmount: number;
   shippingAddress: ShippingAddress;
   billingAddress?: ShippingAddress;
   notes?: string;
   currency?: string;
+  isGuest?: boolean;
+  guestName?: string;
+  transactionId?: string;
+  whatsappNumber?: string;
 }
 
 export interface OrderResponse {
@@ -34,7 +42,11 @@ export interface OrderResponse {
 
 export interface Order {
   _id: string;
-  customerId: string;
+  customerId?: Types.ObjectId;
+  isGuest?: boolean;
+  guestName?: string;
+  transactionId?: string;
+  whatsappNumber?: string;
   items: OrderItem[];
   totalAmount: number;
   shippingAddress: ShippingAddress;

@@ -14,8 +14,7 @@ import PaymentRoutes from "../modules/payment/payment.routes";
 import OrderRoutes from "../modules/order/order.routes";
 import { DashboardRoutes } from "../modules/dashboardstats/dashboard.router";
 import heroRouter from "../modules/hero/hero.routes";
-
-
+import { AnalyticsRoutes } from "../modules/analytics/analytics.routes";
 
 const router = express.Router();
 
@@ -79,6 +78,10 @@ const moduleRoutes = [
   {
     path: "/dashboard",
     route: DashboardRoutes,
+  },
+  {
+    path: "/analytics",
+    route: AnalyticsRoutes,
   },
 ];
 

@@ -5,8 +5,8 @@ import { USER_ROLE } from '../user/user.constant';
 
 const router = Router();
 
-// Public routes (if needed for guest checkout)
-// router.post('/guest', OrderController.createGuestOrder);
+// Public routes (guest checkout)
+router.post('/guest', OrderController.createGuestOrder);
 
 // Protected routes (require authentication)
 router.post('/create', auth(USER_ROLE.buyer, USER_ROLE.seller, USER_ROLE.admin, USER_ROLE.superAdmin, USER_ROLE.guest), OrderController.createOrder);

@@ -69,9 +69,14 @@ app.use(cors({
   origin: [
     "https://lunel-beauty.vercel.app",
     "http://localhost:3000",
-    `${config.FRONTEND_URL}`
+    "http://localhost:5173",
+    "https://dewmii.vercel.app",
+    `${config.FRONTEND_URL}`,
+    /\.vercel\.app$/ // Allow all Vercel subdomains
   ],
   credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
 }));
 superAdmin();
 

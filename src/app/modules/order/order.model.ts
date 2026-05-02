@@ -1,11 +1,28 @@
 import { Schema, model } from 'mongoose';
+import { Order } from './order.interface';
 
-const OrderSchema = new Schema(
+const OrderSchema = new Schema<Order>(
   {
     customerId: {
       type: Schema.Types.ObjectId,
       ref: 'users',
-      required: [true, 'Customer ID is required'],
+      required: false, // Made optional for guest orders
+    },
+    isGuest: {
+      type: Boolean,
+      default: false,
+    },
+    guestName: {
+      type: String,
+      required: false,
+    },
+    transactionId: {
+      type: String,
+      required: false,
+    },
+    whatsappNumber: {
+      type: String,
+      required: false,
     },
     items: [
       {
@@ -46,7 +63,7 @@ const OrderSchema = new Schema(
       postalCode: { type: String, required: [true, 'Postal code is required'] },
       country: { type: String, required: [true, 'Country is required'] },
       phone: { type: String, required: [true, 'Phone is required'] },
-      email: { type: String, required: [true, 'Email is required'] },
+      email: { type: String, required: false }, // Made optional for guest
     },
     billingAddress: {
       street: { type: String, required: false },

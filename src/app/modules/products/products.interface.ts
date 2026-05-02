@@ -1,4 +1,4 @@
-import { Document, Model, Schema } from "mongoose";
+import { Document, Model, Schema, Types } from "mongoose";
 
 // Predefined ingredient options for future queries (case-sensitive)
 export type KeyIngredient =
@@ -34,7 +34,11 @@ export interface IProduct extends Document {
   categories?: string[];
   skintype?: SkinType; // Single skin type from predefined options (case-sensitive)
   ingredients?: KeyIngredient[]; // Array of key ingredients from predefined options (case-sensitive)
-  collections?: string[]; // Array of collection IDs (optional)
+  collections?: Types.ObjectId[]; // Array of collection IDs (optional)
+  totalViews: number;
+  totalClicks: number;
+  totalAddToCart: number;
+  totalWishlist: number;
 }
 
 export type ProductModel = {

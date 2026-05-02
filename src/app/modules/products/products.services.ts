@@ -2,6 +2,7 @@ import product from "./products.model";
 import { IProduct } from "./products.interface";
 import QueryBuilder from "../../builder/QueryBuilder";
 import ReviewServices from "../reviews/reviews.services";
+import { deleteFromCloudinary } from "../../utils/cloudinary";
 
 /**
  * Creates a new product in the database
@@ -278,6 +279,26 @@ const updateProductIntoDb = async (id: string, payload: any) => {
   try {
     const updateData = payload;
 
+    // Handle Cloudinary cleanup if images are being updated
+    if (updateData.imagesPublicIds) {
+      const existingProduct = await product.findById(id).select("imagesPublicIds");
+      
+      if (existingProduct?.imagesPublicIds) {
+        // Find public IDs that are in the database but NOT in the new payload
+        const orphans = existingProduct.imagesPublicIds.filter(
+          (oldId) => !updateData.imagesPublicIds.includes(oldId)
+        );
+
+        // Delete orphaned images from Cloudinary
+        if (orphans.length > 0) {
+          const deletePromises = orphans.map((publicId) =>
+            deleteFromCloudinary(publicId)
+          );
+          await Promise.all(deletePromises);
+        }
+      }
+    }
+
     // Prepare the update object
     // Mongoose handles $set and $unset separately for fine-grained control
     const updateQuery: any = { $set: updateData };
@@ -314,6 +335,16 @@ const updateProductIntoDb = async (id: string, payload: any) => {
  * @returns Promise<IProduct | null> - Deleted product document or null if not found
  */
 const deleteProductFromDb = async (id: string) => {
+  // Fetch imagesPublicIds before deleting the document
+  const existingProduct = await product.findById(id).select("imagesPublicIds");
+  
+  if (existingProduct?.imagesPublicIds && existingProduct.imagesPublicIds.length > 0) {
+    const deletePromises = existingProduct.imagesPublicIds.map((publicId) =>
+      deleteFromCloudinary(publicId)
+    );
+    await Promise.all(deletePromises);
+  }
+
   // Hard delete by removing the document from database
   const result = await product.findByIdAndDelete(id);
   return result;

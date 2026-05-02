@@ -16,6 +16,10 @@ const normalizeOrder = (doc: any): Order => {
     ...doc,
     _id: doc?._id != null ? String(doc._id) : doc?._id,
     customerId: doc?.customerId != null ? String(doc.customerId) : doc?.customerId,
+    isGuest: doc?.isGuest,
+    guestName: doc?.guestName,
+    transactionId: doc?.transactionId,
+    whatsappNumber: doc?.whatsappNumber,
     items,
   } as Order;
 };
@@ -62,6 +66,36 @@ class OrderService {
       return {
         status: false,
         message: error.message || 'Failed to create order',
+      };
+    }
+  }
+
+  async createGuestOrder(orderData: CreateOrderData): Promise<OrderResponse> {
+    try {
+      const order = await OrderModel.create({
+        isGuest: true,
+        guestName: orderData.guestName,
+        transactionId: orderData.transactionId,
+        whatsappNumber: orderData.whatsappNumber,
+        items: orderData.items,
+        totalAmount: orderData.totalAmount,
+        shippingAddress: orderData.shippingAddress,
+        billingAddress: orderData.billingAddress || orderData.shippingAddress,
+        status: ORDER_STATUS.PENDING,
+        paymentStatus: PAYMENT_STATUS.PENDING,
+        notes: orderData.notes,
+        currency: orderData.currency || DEFAULT_CURRENCY,
+      });
+
+      return {
+        status: true,
+        message: 'Guest order created successfully',
+        data: { order: normalizeOrder(order.toObject()) },
+      };
+    } catch (error: any) {
+      return {
+        status: false,
+        message: error.message || 'Failed to create guest order',
       };
     }
   }

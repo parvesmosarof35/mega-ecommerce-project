@@ -13,7 +13,28 @@ class OrderController {
 
   createOrder = catchAsync(async (req: Request, res: Response) => {
     const validatedData = OrderValidationSchemas.createOrderSchema.parse(req);
-    const result = await this.orderService.createOrder(validatedData.body);
+    const result = await this.orderService.createOrder(validatedData.body as any);
+
+    if (result.status) {
+      sendResponse(res, {
+        statusCode: 201,
+        success: true,
+        message: result.message,
+        data: result.data,
+      });
+    } else {
+      sendResponse(res, {
+        statusCode: 400,
+        success: false,
+        message: result.message,
+        data: null,
+      });
+    }
+  });
+
+  createGuestOrder = catchAsync(async (req: Request, res: Response) => {
+    const validatedData = OrderValidationSchemas.createGuestOrderSchema.parse(req);
+    const result = await this.orderService.createGuestOrder(validatedData.body as any);
 
     if (result.status) {
       sendResponse(res, {

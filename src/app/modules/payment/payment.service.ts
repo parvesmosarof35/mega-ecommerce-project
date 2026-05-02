@@ -517,7 +517,7 @@ class PaymentService {
                 billingAddress: paymentData.billingAddress,
                 notes: paymentData.notes,
                 currency: paymentData.currency,
-              });
+              } as any);
 
               if (orderResult.status && orderResult.data?.order) {
                 // Update order with payment info
@@ -561,7 +561,7 @@ class PaymentService {
                 billingAddress: cartData.billingAddress,
                 notes: cartData.notes,
                 currency: cartData.currency,
-              });
+              } as any);
 
               if (orderResult.status && orderResult.data?.order) {
                 // Update order with payment info
@@ -678,7 +678,7 @@ class PaymentService {
                 billingAddress: cartData.billingAddress,
                 notes: cartData.notes,
                 currency: cartData.currency,
-              });
+              } as any);
 
               if (orderResult.status && orderResult.data?.order) {
                 // Update order with payment info
@@ -845,7 +845,7 @@ class PaymentService {
             billingAddress: paymentRequest.billingAddress,
             notes: paymentRequest.notes,
             currency: paymentRequest.currency || "usd",
-          });
+          } as any);
 
           if (orderResult.status && orderResult.data?.order) {
             // Update order with payment info

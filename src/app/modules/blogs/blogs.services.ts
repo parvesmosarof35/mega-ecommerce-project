@@ -13,7 +13,7 @@ const createBlogsIntoDb = async (
   try {
     const data = req.body as any;
 
-    const blogsBuilder = new blogs({ ...data, adminId });
+    const blogsBuilder = new blogs({ ...data, adminId: adminId as any });
     const result = await blogsBuilder.save();
 
     return result && { status: true, message: "successfully recorded" };

@@ -11,7 +11,7 @@ export type TBlogs = {
   photoPublicId?: string;
   content: string;
   isDelete: boolean;
-  adminId: string;
+  adminId: Types.ObjectId;
 };
 
 export interface BlogsModel extends Model<TBlogs> {

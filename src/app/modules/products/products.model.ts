@@ -89,6 +89,22 @@ const ProductSchema = new Schema<IProduct, ProductModel>(
         ref: "collections",
       },
     ],
+    totalViews: {
+      type: Number,
+      default: 0,
+    },
+    totalClicks: {
+      type: Number,
+      default: 0,
+    },
+    totalAddToCart: {
+      type: Number,
+      default: 0,
+    },
+    totalWishlist: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

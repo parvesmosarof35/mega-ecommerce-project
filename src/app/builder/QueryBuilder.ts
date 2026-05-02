@@ -1,4 +1,4 @@
-import { FilterQuery, Query } from "mongoose";
+import mongoose, { FilterQuery, Query } from "mongoose";
 
 class QueryBuilder<T> {
   public modelQuery: Query<T[], T>;
@@ -10,7 +10,7 @@ class QueryBuilder<T> {
   }
 
   search(searchableFields: string[]) {
-    const searchTerm = this?.query?.searchTerm;
+    const searchTerm = this?.query?.searchTerm as string;
 
     if (searchTerm) {
       const searchConditions: any[] = [];
@@ -26,10 +26,9 @@ class QueryBuilder<T> {
         } else if (field === '_id') {
           // ObjectId field - try to convert to ObjectId for exact match
           try {
-            const { ObjectId } = require('mongoose');
-            if (ObjectId.isValid(searchTerm)) {
+            if (mongoose.Types.ObjectId.isValid(searchTerm)) {
               searchConditions.push({
-                [field]: new ObjectId(searchTerm),
+                [field]: new mongoose.Types.ObjectId(searchTerm),
               });
             }
           } catch (error) {
