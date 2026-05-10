@@ -44,33 +44,6 @@ const decrementStockForOrderItems = async (items: any[]) => {
 };
 
 class OrderService {
-  async createOrder(orderData: CreateOrderData): Promise<OrderResponse> {
-    try {
-      const order = await OrderModel.create({
-        customerId: orderData.customerId,
-        items: orderData.items,
-        totalAmount: orderData.totalAmount,
-        shippingAddress: orderData.shippingAddress,
-        billingAddress: orderData.billingAddress || orderData.shippingAddress,
-        status: ORDER_STATUS.PENDING,
-        paymentStatus: PAYMENT_STATUS.PENDING,
-        notes: orderData.notes,
-        currency: orderData.currency || DEFAULT_CURRENCY,
-      });
-
-      return {
-        status: true,
-        message: 'Order created successfully',
-        data: { order: normalizeOrder(order.toObject()) },
-      };
-    } catch (error: any) {
-      return {
-        status: false,
-        message: error.message || 'Failed to create order',
-      };
-    }
-  }
-
   async createGuestOrder(orderData: CreateOrderData): Promise<OrderResponse> {
     try {
       const order = await OrderModel.create({
@@ -122,37 +95,6 @@ class OrderService {
       return {
         status: false,
         message: error.message || 'Failed to retrieve order',
-      };
-    }
-  }
-
-  async getOrdersByCustomerId(customerId: string, page: number = 1, limit: number = 10): Promise<OrderListResponse> {
-    try {
-      const startIndex = (page - 1) * limit;
-
-      const [customerOrders, total] = await Promise.all([
-        OrderModel.find({ customerId })
-          .sort({ createdAt: -1 })
-          .skip(startIndex)
-          .limit(limit)
-          .lean(),
-        OrderModel.countDocuments({ customerId }),
-      ]);
-
-      return {
-        status: true,
-        message: 'Orders retrieved successfully',
-        data: {
-          orders: customerOrders.map(normalizeOrder),
-          total,
-          page,
-          limit,
-        },
-      };
-    } catch (error: any) {
-      return {
-        status: false,
-        message: error.message || 'Failed to retrieve orders',
       };
     }
   }

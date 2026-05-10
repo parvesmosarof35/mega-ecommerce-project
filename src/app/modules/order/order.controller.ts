@@ -11,27 +11,6 @@ class OrderController {
     this.orderService = new OrderService();
   }
 
-  createOrder = catchAsync(async (req: Request, res: Response) => {
-    const validatedData = OrderValidationSchemas.createOrderSchema.parse(req);
-    const result = await this.orderService.createOrder(validatedData.body as any);
-
-    if (result.status) {
-      sendResponse(res, {
-        statusCode: 201,
-        success: true,
-        message: result.message,
-        data: result.data,
-      });
-    } else {
-      sendResponse(res, {
-        statusCode: 400,
-        success: false,
-        message: result.message,
-        data: null,
-      });
-    }
-  });
-
   createGuestOrder = catchAsync(async (req: Request, res: Response) => {
     const validatedData = OrderValidationSchemas.createGuestOrderSchema.parse(req);
     const result = await this.orderService.createGuestOrder(validatedData.body as any);
@@ -67,33 +46,6 @@ class OrderController {
     } else {
       sendResponse(res, {
         statusCode: 404,
-        success: false,
-        message: result.message,
-        data: null,
-      });
-    }
-  });
-
-  getOrdersByCustomerId = catchAsync(async (req: Request, res: Response) => {
-    const { customerId } = req.params;
-    const { page = 1, limit = 10 } = req.query;
-    
-    const result = await this.orderService.getOrdersByCustomerId(
-      customerId,
-      Number(page),
-      Number(limit)
-    );
-
-    if (result.status) {
-      sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: result.message,
-        data: result.data,
-      });
-    } else {
-      sendResponse(res, {
-        statusCode: 400,
         success: false,
         message: result.message,
         data: null,

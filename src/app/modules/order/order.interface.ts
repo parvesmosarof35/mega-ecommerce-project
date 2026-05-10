@@ -33,6 +33,17 @@ export interface CreateOrderData {
   extraInfo?: string;
 }
 
+export interface OrderListResponse {
+  status: boolean;
+  message: string;
+  data?: {
+    orders: Order[];
+    total: number;
+    page: number;
+    limit: number;
+  };
+}
+
 export interface OrderResponse {
   status: boolean;
   message: string;
