@@ -44,6 +44,34 @@ const decrementStockForOrderItems = async (items: any[]) => {
 };
 
 class OrderService {
+  async createOrder(orderData: CreateOrderData): Promise<OrderResponse> {
+    try {
+      const order = await OrderModel.create({
+        customerId: orderData.customerId,
+        isGuest: false,
+        items: orderData.items,
+        totalAmount: orderData.totalAmount,
+        shippingAddress: orderData.shippingAddress,
+        billingAddress: orderData.billingAddress || orderData.shippingAddress,
+        status: ORDER_STATUS.PENDING,
+        paymentStatus: PAYMENT_STATUS.PENDING,
+        notes: orderData.notes,
+        currency: orderData.currency || DEFAULT_CURRENCY,
+      });
+
+      return {
+        status: true,
+        message: 'Order created successfully',
+        data: { order: normalizeOrder(order.toObject()) },
+      };
+    } catch (error: any) {
+      return {
+        status: false,
+        message: error.message || 'Failed to create order',
+      };
+    }
+  }
+
   async createGuestOrder(orderData: CreateOrderData): Promise<OrderResponse> {
     try {
       const order = await OrderModel.create({
