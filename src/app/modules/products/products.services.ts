@@ -3,6 +3,7 @@ import { IProduct } from "./products.interface";
 import QueryBuilder from "../../builder/QueryBuilder";
 import ReviewServices from "../reviews/reviews.services";
 import { deleteFromCloudinary } from "../../utils/cloudinary";
+import { CacheHelper } from "../../helper/cache";
 
 /**
  * Creates a new product in the database
@@ -12,6 +13,7 @@ import { deleteFromCloudinary } from "../../utils/cloudinary";
 const createProductIntoDb = async (payload: any) => {
   try {
     const result = await product.create(payload);
+    CacheHelper.invalidateTags(["products"]);
     return result;
   } catch (error: any) {
     throw error;
@@ -24,6 +26,12 @@ const createProductIntoDb = async (payload: any) => {
  * @returns Promise<{result: IProduct[], meta: object}> - Products array with rating data and metadata
  */
 const getAllProductsFromDb = async (query: any) => {
+  const cacheKey = CacheHelper.generateKey("products:list", query);
+  const cachedData = CacheHelper.get(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
   // Handle custom sorting options
   const originalSort = query.sort;
   let modifiedQuery = { ...query };
@@ -34,9 +42,12 @@ const getAllProductsFromDb = async (query: any) => {
         // Sort by stock_quantity (assuming higher stock means more sales)
         modifiedQuery.sort = "stock_quantity";
         break;
-      case "bestRating":
+      case "bestRating": {
         // Use aggregation pipeline for real rating sort
-        return getProductsSortedByRating(query);
+        const ratingResult = await getProductsSortedByRating(query);
+        CacheHelper.set(cacheKey, ratingResult, ["products"]);
+        return ratingResult;
+      }
       case "priceLowToHigh":
         modifiedQuery.sort = "price";
         break;
@@ -87,10 +98,12 @@ const getAllProductsFromDb = async (query: any) => {
     })
   );
 
-  return {
+  const finalResult = {
     result: productsWithRatings,
     meta,
   };
+  CacheHelper.set(cacheKey, finalResult, ["products"]);
+  return finalResult;
 };
 
 /**
@@ -234,6 +247,12 @@ const getProductsSortedByRating = async (query: any) => {
  * @returns Promise<IProduct | null> - Single product document with reviews or null if not found
  */
 const getSingleProductFromDb = async (id: string, query: any = {}) => {
+  const cacheKey = CacheHelper.generateKey(`products:single:${id}`, query);
+  const cachedData = CacheHelper.get(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
   // Find product by ID and populate collections array to show collection details
   const productData = await product.findById(id).populate("collections");
 
@@ -266,6 +285,7 @@ const getSingleProductFromDb = async (id: string, query: any = {}) => {
     totalReviews: ratingData.totalReviews,
   };
 
+  CacheHelper.set(cacheKey, productWithReviews, ["products", `product:${id}`]);
   return productWithReviews;
 };
 
@@ -323,6 +343,8 @@ const updateProductIntoDb = async (id: string, payload: any) => {
         runValidators: true,
       })
       .populate("collections");
+
+    CacheHelper.invalidateTags(["products", `product:${id}`]);
     return result;
   } catch (error: any) {
     throw error;
@@ -347,6 +369,7 @@ const deleteProductFromDb = async (id: string) => {
 
   // Hard delete by removing the document from database
   const result = await product.findByIdAndDelete(id);
+  CacheHelper.invalidateTags(["products", `product:${id}`]);
   return result;
 };
 
@@ -357,6 +380,12 @@ const deleteProductFromDb = async (id: string) => {
  * @returns Promise<{result: IProduct[], meta: object}> - Filtered products array and metadata
  */
 const getProductsByCollection = async (collectionId: string, query: any) => {
+  const cacheKey = CacheHelper.generateKey(`products:collection:${collectionId}`, query);
+  const cachedData = CacheHelper.get(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
   // Find products where the collections array contains the specified collectionId
   // This enables filtering products by collection for the collection-product relationship
   const productQuery = new QueryBuilder(
@@ -372,10 +401,12 @@ const getProductsByCollection = async (collectionId: string, query: any) => {
   const result = await productQuery.modelQuery;
   const meta = await productQuery.countTotal();
 
-  return {
+  const finalResult = {
     result,
     meta,
   };
+  CacheHelper.set(cacheKey, finalResult, ["products", `collection:${collectionId}`]);
+  return finalResult;
 };
 
 /**
@@ -385,6 +416,12 @@ const getProductsByCollection = async (collectionId: string, query: any) => {
  * @returns Promise<{result: IProduct[], meta: object}> - Related products array and metadata
  */
 const getRelatedProducts = async (productId: string, query: any = {}) => {
+  const cacheKey = CacheHelper.generateKey(`products:related:${productId}`, query);
+  const cachedData = CacheHelper.get(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
   // First, get the current product to understand its attributes
   const currentProduct = await product.findById(productId);
 
@@ -458,7 +495,7 @@ const getRelatedProducts = async (productId: string, query: any = {}) => {
     $or: orConditions.length > 0 ? orConditions : [{ isFeatured: true }]
   });
 
-  return {
+  const finalResult = {
     result: productsWithRatings,
     meta: {
       page,
@@ -467,6 +504,8 @@ const getRelatedProducts = async (productId: string, query: any = {}) => {
       totalPage: Math.ceil(totalCount / limit),
     },
   };
+  CacheHelper.set(cacheKey, finalResult, ["products", `product:${productId}`]);
+  return finalResult;
 };
 
 /**
@@ -492,9 +531,15 @@ const searchProducts = async (searchTerm: string) => {
     return [];
   }
 
+  const cacheKey = `products:search:${searchTerm.trim()}`;
+  const cachedData = CacheHelper.get(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
   const searchRegex = new RegExp(searchTerm, 'i'); // Case-insensitive search
 
-  return await product
+  const result = await product
     .find({
       name: { $regex: searchRegex },
       isDeleted: { $ne: true }
@@ -502,6 +547,9 @@ const searchProducts = async (searchTerm: string) => {
     .select('_id name images_urls')
     .lean()
     .exec();
+
+  CacheHelper.set(cacheKey, result, ["products"]);
+  return result;
 };
 
 const ProductServices = {

@@ -2,6 +2,7 @@ import collection from "./collection.model";
 import { ICollection } from "./collection.interface";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { Request } from "express";
+import { CacheHelper } from "../../helper/cache";
 
 /**
  * Creates a new collection in the database
@@ -18,6 +19,7 @@ const createCollectionIntoDb = async (req: Request) => {
     }
 
     const result = await collection.create(data);
+    CacheHelper.invalidateTags(["collections", "products"]);
     return result;
   } catch (error: any) {
     throw error;
@@ -30,6 +32,12 @@ const createCollectionIntoDb = async (req: Request) => {
  * @returns Promise<{result: ICollection[], meta: object}> - Collections array and metadata
  */
 const getAllCollectionsFromDb = async (query: any) => {
+  const cacheKey = CacheHelper.generateKey("collections:list", query);
+  const cachedData = CacheHelper.get(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
   // Use QueryBuilder for advanced query operations
   // - Search in name and slug fields
   // - Apply filters, sorting, pagination
@@ -47,10 +55,12 @@ const getAllCollectionsFromDb = async (query: any) => {
   const result = await collectionQuery.modelQuery;
   const meta = await collectionQuery.countTotal();
 
-  return {
+  const finalResult = {
     result,
     meta,
   };
+  CacheHelper.set(cacheKey, finalResult, ["collections"]);
+  return finalResult;
 };
 
 /**
@@ -59,8 +69,15 @@ const getAllCollectionsFromDb = async (query: any) => {
  * @returns Promise<ICollection | null> - Single collection document or null if not found
  */
 const getSingleCollectionFromDb = async (id: string) => {
+  const cacheKey = `collections:single:${id}`;
+  const cachedData = CacheHelper.get(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
   // Find collection by ID and populate products array to show product details
   const result = await collection.findById(id).populate("products");
+  CacheHelper.set(cacheKey, result, ["collections", `collection:${id}`]);
   return result;
 };
 
@@ -93,6 +110,8 @@ const updateCollectionIntoDb = async (req: Request, id: string) => {
         runValidators: true,
       })
       .populate("products");
+
+    CacheHelper.invalidateTags(["collections", "products", `collection:${id}`]);
     return result;
   } catch (error: any) {
     throw error;
@@ -107,6 +126,7 @@ const updateCollectionIntoDb = async (req: Request, id: string) => {
 const deleteCollectionFromDb = async (id: string) => {
   // Hard delete by removing the document from database
   const result = await collection.findByIdAndDelete(id);
+  CacheHelper.invalidateTags(["collections", "products", `collection:${id}`]);
   return result;
 };
 
@@ -129,6 +149,8 @@ const addProductsToCollection = async (
       { new: true, runValidators: true }
     )
     .populate("products");
+
+  CacheHelper.invalidateTags(["collections", "products", `collection:${collectionId}`]);
   return result;
 };
 
@@ -150,6 +172,8 @@ const removeProductsFromCollection = async (
       { new: true }
     )
     .populate("products");
+
+  CacheHelper.invalidateTags(["collections", "products", `collection:${collectionId}`]);
   return result;
 };
 

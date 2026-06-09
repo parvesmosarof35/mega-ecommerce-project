@@ -2,6 +2,7 @@ import review from "./reviews.model";
 import { IReview } from "./reviews.interface";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { Types } from "mongoose";
+import { CacheHelper } from "../../helper/cache";
 
 /**
  * Creates a new review in the database
@@ -10,6 +11,11 @@ import { Types } from "mongoose";
  */
 const createReviewIntoDb = async (payload: IReview) => {
   const result = await review.create(payload);
+  if (payload.product_id) {
+    CacheHelper.invalidateTags(["products", `product:${payload.product_id.toString()}`]);
+  } else {
+    CacheHelper.invalidateTags(["products"]);
+  }
   return result;
 };
 
@@ -122,6 +128,14 @@ const updateReviewIntoDb = async (id: string, payload: Partial<IReview>) => {
     new: true,
     runValidators: true,
   }).populate("product_id").populate("user_id");
+
+  if (result && result.product_id) {
+    const rawProductId = result.product_id as any;
+    const productId = rawProductId._id ? rawProductId._id.toString() : rawProductId.toString();
+    CacheHelper.invalidateTags(["products", `product:${productId}`]);
+  } else {
+    CacheHelper.invalidateTags(["products"]);
+  }
   return result;
 };
 
@@ -138,6 +152,14 @@ const deleteReviewFromDb = async (id: string) => {
     { isDelete: true },
     { new: true }
   );
+
+  if (result && result.product_id) {
+    const rawProductId = result.product_id as any;
+    const productId = rawProductId._id ? rawProductId._id.toString() : rawProductId.toString();
+    CacheHelper.invalidateTags(["products", `product:${productId}`]);
+  } else {
+    CacheHelper.invalidateTags(["products"]);
+  }
   return result;
 };
 
