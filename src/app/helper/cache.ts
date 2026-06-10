@@ -136,7 +136,7 @@ class CacheHelperClass {
   }
 
   /**
-   * Retrieves current cache statistics
+   * Retrieves current cache statistics asdf
    */
   public getStats() {
     const totalRequests = this.hits + this.misses;
