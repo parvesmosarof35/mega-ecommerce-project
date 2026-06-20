@@ -22,6 +22,10 @@ const TermsConditionsValidationSchema = z.object({
 
 const SocalMediaLinksAddressPhoneEmailTextsValidationSchema = z.object({
   body: z.object({
+    websiteLogo: z.object({
+      url: z.string().optional(),
+    }).optional(),
+    heroImages: z.array(z.string()).optional(),
     navbarlinks: z
       .array(
         z.object({
@@ -50,6 +54,18 @@ const SocalMediaLinksAddressPhoneEmailTextsValidationSchema = z.object({
       })
       .optional(),
     twitterx: z
+      .object({
+        url: z.string().optional(),
+        isActive: z.boolean().optional(),
+      })
+      .optional(),
+    linkedin: z
+      .object({
+        url: z.string().optional(),
+        isActive: z.boolean().optional(),
+      })
+      .optional(),
+    pinterest: z
       .object({
         url: z.string().optional(),
         isActive: z.boolean().optional(),
@@ -119,6 +135,10 @@ const SocalMediaLinksAddressPhoneEmailTextsValidationSchema = z.object({
         relatedproducttext: z.string().optional(),
       })
       .optional(),
+    bkashNumber: z.string().optional(),
+    nagadNumber: z.string().optional(),
+    rocketNumber: z.string().optional(),
+    bankAccount: z.string().optional(),
   }),
 });
 

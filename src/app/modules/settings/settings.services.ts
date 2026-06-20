@@ -283,6 +283,88 @@ const findByHomePageSection2IntoDb = async () => {
   }
 };
 
+const updateWebsitePhotoSettingsIntoDb = async (payload: any, files: any) => {
+  try {
+    const updateData: any = {};
+    
+    // Upload websiteLogo to Cloudinary
+    if (files.websiteLogo && files.websiteLogo[0]) {
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(2, 8);
+      const filename = `website-logo-${timestamp}-${randomString}`;
+
+      const uploaded = await uploadBufferToCloudinary(
+        files.websiteLogo[0].buffer,
+        'settings',
+        'high',
+        filename
+      );
+
+      updateData['websiteLogo.url'] = uploaded.secure_url;
+    }
+
+    // Upload hero images
+    if (files.heroImages) {
+      updateData.heroImages = [];
+      // Keep existing images if they weren't removed? Actually, let's just replace them.
+      // Wait, if they upload a mix of old/new, maybe they pass existing URLs in payload.
+      // For simplicity, let's assume they upload all active hero images or we append?
+      // Actually, if we just want to allow max 3, we can upload them and override the array.
+      // But typically we might want to update specific indexes. Let's just collect all new uploads and set `heroImages`.
+      // Or we can let payload.existingHeroImages be an array of strings to keep, and append new ones.
+      let finalHeroImages: string[] = [];
+      if (payload.existingHeroImages) {
+         finalHeroImages = Array.isArray(payload.existingHeroImages) ? payload.existingHeroImages : [payload.existingHeroImages];
+      }
+      
+      for (let i = 0; i < files.heroImages.length; i++) {
+        const file = files.heroImages[i];
+        const timestamp = Date.now();
+        const randomString = Math.random().toString(36).substring(2, 8);
+        const filename = `hero-image-${timestamp}-${randomString}`;
+
+        const uploaded = await uploadBufferToCloudinary(
+          file.buffer,
+          'settings',
+          'high',
+          filename
+        );
+        finalHeroImages.push(uploaded.secure_url);
+      }
+      
+      if (finalHeroImages.length > 0) {
+        updateData.heroImages = finalHeroImages;
+      }
+    }
+
+    if (Object.keys(updateData).length === 0 && !payload.existingHeroImages) {
+        return { status: true, message: 'No images to update' };
+    }
+    
+    // If they just removed images and submitted only existing ones
+    if (payload.existingHeroImages && !files.heroImages) {
+        updateData.heroImages = Array.isArray(payload.existingHeroImages) ? payload.existingHeroImages : [payload.existingHeroImages];
+    }
+
+    const result = await socialMediaLinksAddressPhoneEmailTexts.findOneAndUpdate(
+      {},
+      { $set: updateData },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
+
+    return result
+      ? { status: true, message: 'Website photos successfully saved', data: result }
+      : { status: false, message: 'Failed to save website photos' };
+
+  } catch (error: any) {
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'Failed to save website photos into DB',
+      error,
+    );
+  }
+};
+
 const updateHomePageCollectionsIntoDb = async (payload: any) => {
   try {
     const { title, subtitle } = payload;
@@ -338,6 +420,7 @@ const SettingServices = {
   findByHomePageSection2IntoDb,
   updateHomePageCollectionsIntoDb,
   findByHomePageCollectionsIntoDb,
+  updateWebsitePhotoSettingsIntoDb,
 };
 
 

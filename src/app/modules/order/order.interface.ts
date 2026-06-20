@@ -10,10 +10,10 @@ export interface OrderItem {
 
 export interface ShippingAddress {
   street: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
   phone: string;
   email?: string;
 }
@@ -31,6 +31,9 @@ export interface CreateOrderData {
   transactionId?: string;
   whatsappNumber?: string;
   extraInfo?: string;
+  deliveryArea?: 'Inside Dhaka' | 'Outside Dhaka';
+  deliveryCharge?: number;
+  paymentMode?: 'full' | 'delivery_charge';
 }
 
 export interface OrderListResponse {
@@ -60,6 +63,9 @@ export interface Order {
   transactionId?: string;
   whatsappNumber?: string;
   extraInfo?: string;
+  deliveryArea?: 'Inside Dhaka' | 'Outside Dhaka';
+  deliveryCharge?: number;
+  paymentMode?: 'full' | 'delivery_charge';
   items: OrderItem[];
   totalAmount: number;
   shippingAddress: ShippingAddress;

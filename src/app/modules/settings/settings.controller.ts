@@ -111,6 +111,22 @@ const updateHomePageSection2: RequestHandler = catchAsync(
   },
 );
 
+const updateWebsitePhotoSettings: RequestHandler = catchAsync(
+  async (req, res) => {
+    const result = await SettingServices.updateWebsitePhotoSettingsIntoDb(
+      req.body,
+      req.files
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Successfully Updated Website Photos",
+      data: result,
+    });
+  },
+);
+
 const findByHomePageSection2: RequestHandler = catchAsync(
   async (req, res) => {
     const result = await SettingServices.findByHomePageSection2IntoDb();
@@ -163,6 +179,7 @@ const SettingController = {
   findByHomePageSection2,
   updateHomePageCollections,
   findByHomePageCollections,
+  updateWebsitePhotoSettings,
 };
 
 export default SettingController;
