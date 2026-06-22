@@ -68,6 +68,13 @@ class OrderService {
         paymentStatus: PAYMENT_STATUS.PENDING,
         notes: orderData.notes,
         currency: orderData.currency || DEFAULT_CURRENCY,
+        guestName: orderData.guestName,
+        transactionId: orderData.transactionId,
+        whatsappNumber: orderData.whatsappNumber,
+        extraInfo: orderData.extraInfo,
+        deliveryArea: orderData.deliveryArea,
+        deliveryCharge: orderData.deliveryCharge,
+        paymentMode: orderData.paymentMode,
       });
 
       return {
@@ -99,6 +106,9 @@ class OrderService {
         paymentStatus: PAYMENT_STATUS.PENDING,
         notes: orderData.notes,
         currency: orderData.currency || DEFAULT_CURRENCY,
+        deliveryArea: orderData.deliveryArea,
+        deliveryCharge: orderData.deliveryCharge,
+        paymentMode: orderData.paymentMode,
       });
 
       return {
