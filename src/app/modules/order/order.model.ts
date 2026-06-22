@@ -42,6 +42,11 @@ const OrderSchema = new Schema<Order>(
       enum: ['full', 'delivery_charge'],
       required: false,
     },
+    paymentChannel: {
+      type: String,
+      enum: ['bKash', 'Nagad', 'Rocket', 'Bank'],
+      required: false,
+    },
     items: [
       {
         productId: {

@@ -34,6 +34,7 @@ export interface CreateOrderData {
   deliveryArea?: 'Inside Dhaka' | 'Outside Dhaka';
   deliveryCharge?: number;
   paymentMode?: 'full' | 'delivery_charge';
+  paymentChannel?: 'bKash' | 'Nagad' | 'Rocket' | 'Bank';
 }
 
 export interface OrderListResponse {
@@ -66,6 +67,7 @@ export interface Order {
   deliveryArea?: 'Inside Dhaka' | 'Outside Dhaka';
   deliveryCharge?: number;
   paymentMode?: 'full' | 'delivery_charge';
+  paymentChannel?: 'bKash' | 'Nagad' | 'Rocket' | 'Bank';
   items: OrderItem[];
   totalAmount: number;
   shippingAddress: ShippingAddress;

@@ -22,6 +22,7 @@ const normalizeOrder = (doc: any): Order => {
     transactionId: doc?.transactionId,
     whatsappNumber: doc?.whatsappNumber,
     extraInfo: doc?.extraInfo,
+    paymentChannel: doc?.paymentChannel,
     items,
   } as Order;
 };
@@ -75,6 +76,7 @@ class OrderService {
         deliveryArea: orderData.deliveryArea,
         deliveryCharge: orderData.deliveryCharge,
         paymentMode: orderData.paymentMode,
+        paymentChannel: orderData.paymentChannel,
       });
 
       return {
@@ -109,6 +111,7 @@ class OrderService {
         deliveryArea: orderData.deliveryArea,
         deliveryCharge: orderData.deliveryCharge,
         paymentMode: orderData.paymentMode,
+        paymentChannel: orderData.paymentChannel,
       });
 
       return {

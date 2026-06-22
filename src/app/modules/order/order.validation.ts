@@ -37,6 +37,7 @@ const createGuestOrderSchema = z.object({
     deliveryArea: z.enum(['Inside Dhaka', 'Outside Dhaka']).optional(),
     deliveryCharge: z.number().optional(),
     paymentMode: z.enum(['full', 'delivery_charge']).optional(),
+    paymentChannel: z.enum(['bKash', 'Nagad', 'Rocket', 'Bank']).optional(),
   }),
 });
 
