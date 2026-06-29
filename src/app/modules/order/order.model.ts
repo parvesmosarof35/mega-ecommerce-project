@@ -126,22 +126,6 @@ const OrderSchema = new Schema<Order>(
       required: [true, 'Currency is required'],
       default: 'usd',
     },
-    paymentMode: {
-      type: String,
-      required: false,
-    },
-    paymentChannel: {
-      type: String,
-      required: false,
-    },
-    deliveryArea: {
-      type: String,
-      required: false,
-    },
-    deliveryCharge: {
-      type: Number,
-      required: false,
-    },
   },
   {
     timestamps: true,

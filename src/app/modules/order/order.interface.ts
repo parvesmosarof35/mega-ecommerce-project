@@ -31,14 +31,10 @@ export interface CreateOrderData {
   transactionId?: string;
   whatsappNumber?: string;
   extraInfo?: string;
-  deliveryArea?: 'Inside Dhaka' | 'Outside Dhaka';
+  deliveryArea?: 'Inside Dhaka' | 'Outside Dhaka' | string;
   deliveryCharge?: number;
-  paymentMode?: 'full' | 'delivery_charge';
-  paymentChannel?: 'bKash' | 'Nagad' | 'Rocket' | 'Bank';
-  paymentMode?: string;
-  paymentChannel?: string;
-  deliveryArea?: string;
-  deliveryCharge?: number;
+  paymentMode?: 'full' | 'delivery_charge' | string;
+  paymentChannel?: 'bKash' | 'Nagad' | 'Rocket' | 'Bank' | string;
 }
 
 export interface OrderListResponse {
@@ -68,10 +64,10 @@ export interface Order {
   transactionId?: string;
   whatsappNumber?: string;
   extraInfo?: string;
-  deliveryArea?: 'Inside Dhaka' | 'Outside Dhaka';
+  deliveryArea?: 'Inside Dhaka' | 'Outside Dhaka' | string;
   deliveryCharge?: number;
-  paymentMode?: 'full' | 'delivery_charge';
-  paymentChannel?: 'bKash' | 'Nagad' | 'Rocket' | 'Bank';
+  paymentMode?: 'full' | 'delivery_charge' | string;
+  paymentChannel?: 'bKash' | 'Nagad' | 'Rocket' | 'Bank' | string;
   items: OrderItem[];
   totalAmount: number;
   shippingAddress: ShippingAddress;
@@ -84,19 +80,4 @@ export interface Order {
   currency: string;
   createdAt: Date;
   updatedAt: Date;
-  paymentMode?: string;
-  paymentChannel?: string;
-  deliveryArea?: string;
-  deliveryCharge?: number;
-}
-
-export interface OrderListResponse {
-  status: boolean;
-  message: string;
-  data?: {
-    orders: Order[];
-    total: number;
-    page: number;
-    limit: number;
-  };
 }

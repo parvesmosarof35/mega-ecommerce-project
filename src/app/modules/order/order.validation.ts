@@ -38,10 +38,6 @@ const createGuestOrderSchema = z.object({
     deliveryCharge: z.number().optional(),
     paymentMode: z.enum(['full', 'delivery_charge']).optional(),
     paymentChannel: z.enum(['bKash', 'Nagad', 'Rocket', 'Bank']).optional(),
-    paymentMode: z.string().optional(),
-    paymentChannel: z.string().optional(),
-    deliveryArea: z.string().optional(),
-    deliveryCharge: z.number().optional(),
   }),
 });
 
