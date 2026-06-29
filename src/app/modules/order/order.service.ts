@@ -268,6 +268,38 @@ class OrderService {
     }
   }
 
+  async getOrdersByCustomerId(customerId: string, page: number = 1, limit: number = 10): Promise<OrderListResponse> {
+    try {
+      const filter = { customerId };
+      const startIndex = (page - 1) * limit;
+
+      const [ordersList, total] = await Promise.all([
+        OrderModel.find(filter)
+          .sort({ createdAt: -1 })
+          .skip(startIndex)
+          .limit(limit)
+          .lean(),
+        OrderModel.countDocuments(filter),
+      ]);
+
+      return {
+        status: true,
+        message: 'Customer orders retrieved successfully',
+        data: {
+          orders: ordersList.map(normalizeOrder),
+          total,
+          page,
+          limit,
+        },
+      };
+    } catch (error: any) {
+      return {
+        status: false,
+        message: error.message || 'Failed to retrieve customer orders',
+      };
+    }
+  }
+
   // Helper method to get order for payment processing
   async getOrderForPayment(orderId: string): Promise<Order | null> {
     const order = await OrderModel.findById(orderId).lean();

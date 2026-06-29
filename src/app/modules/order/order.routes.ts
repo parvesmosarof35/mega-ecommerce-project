@@ -8,6 +8,9 @@ const router = Router();
 // Public routes (guest checkout)
 router.post('/guest', OrderController.createGuestOrder);
 
+// Authenticated user routes (viewing own orders)
+router.get('/my-orders/:customerId', auth(USER_ROLE.buyer, USER_ROLE.seller, USER_ROLE.admin, USER_ROLE.superAdmin), OrderController.getOrdersByCustomerId);
+
 // Admin routes (require admin authentication)
 router.get('/', auth(USER_ROLE.admin, USER_ROLE.superAdmin), OrderController.getAllOrders);
 router.get('/:orderId', auth(USER_ROLE.admin, USER_ROLE.superAdmin), OrderController.getOrderById);
