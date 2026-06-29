@@ -2,6 +2,7 @@ import review, { ReviewAuditLog } from "./reviews.model";
 import { IReview } from "./reviews.interface";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { Types } from "mongoose";
+import { CacheHelper } from "../../helper/cache";
 import AppError from "../../errors/AppError";
 import status from "http-status";
 import OrderModel from "../order/order.model";
@@ -83,66 +84,8 @@ const evaluateReviewModeration = (rating: number, comment: string) => {
  * @returns Promise<IReview> - The created or updated review document
  */
 const createReviewIntoDb = async (payload: IReview) => {
-  const { user_id, product_id, order_id, rating, comment } = payload;
-
-  if (!order_id) {
-    throw new AppError(status.BAD_REQUEST, "Order ID is required to create a review");
-  }
-
-  // 1. Fetch order details
-  const order = await OrderModel.findById(order_id);
-  if (!order) {
-    throw new AppError(status.NOT_FOUND, "Order not found");
-  }
-
-  // 2. Authorization check: Ensure order belongs to user
-  if (String(order.customerId) !== String(user_id)) {
-    throw new AppError(status.FORBIDDEN, "You are not authorized to review items from this order");
-  }
-
-  // 3. Status check: Order must be delivered
-  if (order.status?.toLowerCase() !== "delivered") {
-    throw new AppError(status.BAD_REQUEST, "You can only review products from delivered orders");
-  }
-
-  // 4. Product check: Ensure product exists in order items
-  const productInOrder = order.items.some(
-    (item: any) => String(item.productId) === String(product_id)
-  );
-  if (!productInOrder) {
-    throw new AppError(status.BAD_REQUEST, "This product is not part of the specified order");
-  }
-
-  // 5. Evaluate review moderation (ratings, English & Bangla keywords)
-  const moderation = evaluateReviewModeration(rating, comment);
-
-  // 6. Existing review check for User + Product + Order
-  const existingReview = await review.findOne({
-    user_id,
-    product_id,
-    order_id,
-    isDelete: { $ne: true },
-  });
-
-  if (existingReview) {
-    // Update existing review
-    existingReview.rating = rating;
-    existingReview.comment = comment;
-    existingReview.status = moderation.status;
-    existingReview.flagReason = moderation.flagReason;
-    existingReview.detectedKeywords = moderation.detectedKeywords;
-    const updatedResult = await existingReview.save();
-    return updatedResult;
-  } else {
-    // Create new review
-    const result = await review.create({
-      ...payload.toObject ? payload.toObject() : payload,
-      status: moderation.status,
-      flagReason: moderation.flagReason,
-      detectedKeywords: moderation.detectedKeywords
-    } as any);
-    return result;
-  }
+  const result = await review.create(payload);
+  return result;
 };
 
 /**
@@ -321,6 +264,14 @@ const updateReviewIntoDb = async (id: string, payload: Partial<IReview>) => {
     new: true,
     runValidators: true,
   }).populate("product_id").populate("user_id");
+
+  if (result && result.product_id) {
+    const rawProductId = result.product_id as any;
+    const productId = rawProductId._id ? rawProductId._id.toString() : rawProductId.toString();
+    CacheHelper.invalidateTags(["products", `product:${productId}`]);
+  } else {
+    CacheHelper.invalidateTags(["products"]);
+  }
   return result;
 };
 
@@ -335,6 +286,14 @@ const deleteReviewFromDb = async (id: string) => {
     { isDelete: true, status: 'deleted', deletedAt: new Date() },
     { new: true }
   );
+
+  if (result && result.product_id) {
+    const rawProductId = result.product_id as any;
+    const productId = rawProductId._id ? rawProductId._id.toString() : rawProductId.toString();
+    CacheHelper.invalidateTags(["products", `product:${productId}`]);
+  } else {
+    CacheHelper.invalidateTags(["products"]);
+  }
   return result;
 };
 

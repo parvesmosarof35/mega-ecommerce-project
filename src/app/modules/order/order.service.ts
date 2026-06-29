@@ -2,6 +2,7 @@ import { CreateOrderData, Order, OrderResponse, OrderListResponse } from './orde
 import { ORDER_STATUS, PAYMENT_STATUS, DEFAULT_CURRENCY } from './order.constant';
 import OrderModel from './order.model';
 import product from '../products/products.model';
+import { CacheHelper } from '../../helper/cache';
 
 // In-memory storage for orders (replace with database in production)
 const normalizeOrder = (doc: any): Order => {
@@ -21,8 +22,8 @@ const normalizeOrder = (doc: any): Order => {
     transactionId: doc?.transactionId,
     whatsappNumber: doc?.whatsappNumber,
     extraInfo: doc?.extraInfo,
-    paymentMode: doc?.paymentMode,
     paymentChannel: doc?.paymentChannel,
+    paymentMode: doc?.paymentMode,
     deliveryArea: doc?.deliveryArea,
     deliveryCharge: doc?.deliveryCharge,
     items,
@@ -30,6 +31,8 @@ const normalizeOrder = (doc: any): Order => {
 };
 
 const decrementStockForOrderItems = async (items: any[]) => {
+  const updatedProductIds: string[] = [];
+
   for (const item of items) {
     const quantity = Number(item?.quantity ?? 0);
     const productId = item?.productId;
@@ -44,6 +47,14 @@ const decrementStockForOrderItems = async (items: any[]) => {
     if (updated.modifiedCount !== 1) {
       throw new Error(`Insufficient stock for product ${String(productId)}`);
     }
+
+    updatedProductIds.push(String(productId));
+  }
+
+  // Invalidate product cache list and individual product page caches
+  if (updatedProductIds.length > 0) {
+    const tagsToInvalidate = ["products", ...updatedProductIds.map(id => `product:${id}`)];
+    CacheHelper.invalidateTags(tagsToInvalidate);
   }
 };
 

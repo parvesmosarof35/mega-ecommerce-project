@@ -31,6 +31,10 @@ export interface TermsConditionsModel extends Model<TTermsConditions> {
 }
 
 export interface TSocialMediaLinksAddressPhoneEmailTexts {
+  websiteLogo: {
+    url: string;
+  };
+  heroImages: string[];
   // navbar links
   navbarlinks: {
     title: string;
@@ -51,6 +55,14 @@ export interface TSocialMediaLinksAddressPhoneEmailTexts {
     isActive: boolean;
   };
   twitterx: {
+    url: string;
+    isActive: boolean;
+  };
+  linkedin: {
+    url: string;
+    isActive: boolean;
+  };
+  pinterest: {
     url: string;
     isActive: boolean;
   };
@@ -98,6 +110,10 @@ export interface TSocialMediaLinksAddressPhoneEmailTexts {
     Gotodetailstext: string;
     relatedproducttext: string;
   };
+  bkashNumber?: string;
+  nagadNumber?: string;
+  rocketNumber?: string;
+  bankAccount?: string;
   isDelete: boolean;
 }
 

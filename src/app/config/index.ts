@@ -31,4 +31,6 @@ export default {
   file_path: process.env.FILE_PATH,
   host: process.env.HOST,
   FRONTEND_URL: process.env.FRONTEND_URL,
+  cache_enabled: process.env.CACHE_ENABLED === "true",
+  cache_ttl: Number(process.env.CACHE_TTL || 300),
 };

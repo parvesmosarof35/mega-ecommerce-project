@@ -51,7 +51,7 @@ class QueryBuilder<T> {
     let queryObject = { ...this.query };
     
     // Exclude pagination, sort, and custom filter fields
-    const excludeFields = ["searchTerm", "sort", "limit", "page", "fields", "minPrice", "maxPrice", "maxpricerange", "releaseDate", "maxprice", "collections"];
+    const excludeFields = ["searchTerm", "sort", "limit", "page", "fields", "minPrice", "maxPrice", "maxpricerange", "releaseDate", "maxprice", "minprice", "collections"];
     excludeFields.forEach((el) => delete queryObject[el]);
 
     // Robustly handle flat bracket keys (e.g. "price[gte]") manually to support shallow query parsers
@@ -99,6 +99,12 @@ class QueryBuilder<T> {
         ? this.query.ingredients 
         : [this.query.ingredients];
       queryObject.ingredients = { $in: ingredients };
+    }
+
+    // Handle minprice
+    if (this.query?.minprice) {
+      if (!queryObject.price) queryObject.price = {};
+      (queryObject.price as any).$gte = Number(this.query?.minprice);
     }
 
     // Handle maxprice

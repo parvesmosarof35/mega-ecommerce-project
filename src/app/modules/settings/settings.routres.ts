@@ -60,6 +60,17 @@ routes.post(
   SettingController.socalMediaLinksAddressPhoneEmailTexts,
 );
 
+// website photo settings
+routes.post(
+  '/website_photo_settings',
+  auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  upload.fields([
+    { name: 'websiteLogo', maxCount: 1 },
+    { name: 'heroImages', maxCount: 3 }
+  ]),
+  SettingController.updateWebsitePhotoSettings,
+);
+
 // home page seciton 2 img upload and get only will have 2 route post and get the post will also work like update 
 
 routes.post(

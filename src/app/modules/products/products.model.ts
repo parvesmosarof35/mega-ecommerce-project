@@ -23,6 +23,16 @@ const ProductSchema = new Schema<IProduct, ProductModel>(
       required: [true, "Product price is required"],
       min: [0, "Price cannot be negative"],
     },
+    mainprice: {
+      type: Number,
+      required: [true, "Product main price is required"],
+      min: [0, "Main price cannot be negative"],
+    },
+    discountPrice: {
+      type: Number,
+      required: [true, "Product discount price is required"],
+      min: [0, "Discount price cannot be negative"],
+    },
     stock_quantity: {
       type: Number,
       min: [0, "Stock cannot be negative"],

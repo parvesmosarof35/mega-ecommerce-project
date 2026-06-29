@@ -63,6 +63,10 @@ const SocialMediaLinksAddressPhoneEmailTextsSchema = new Schema<
   SocialMediaLinksAddressPhoneEmailTextsModel
 >(
   {
+    websiteLogo: {
+      url: { type: String, default: '' },
+    },
+    heroImages: [{ type: String }],
     navbarlinks: [
       {
         title: { type: String, default: '' },
@@ -85,6 +89,14 @@ const SocialMediaLinksAddressPhoneEmailTextsSchema = new Schema<
     twitterx: {
       url: { type: String, default: '' },
       isActive: { type: Boolean, default: true },
+    },
+    linkedin: {
+      url: { type: String, default: '' },
+      isActive: { type: Boolean, default: false },
+    },
+    pinterest: {
+      url: { type: String, default: '' },
+      isActive: { type: Boolean, default: false },
     },
     whatsapp: {
       url: { type: String, default: '' },
@@ -130,6 +142,10 @@ const SocialMediaLinksAddressPhoneEmailTextsSchema = new Schema<
       Gotodetailstext: { type: String, default: '' },
       relatedproducttext: { type: String, default: '' },
     },
+    bkashNumber: { type: String, default: '' },
+    nagadNumber: { type: String, default: '' },
+    rocketNumber: { type: String, default: '' },
+    bankAccount: { type: String, default: '' },
     isDelete: {
       type: Boolean,
       default: false,

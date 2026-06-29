@@ -28,6 +28,25 @@ const OrderSchema = new Schema<Order>(
       type: String,
       required: false,
     },
+    deliveryArea: {
+      type: String,
+      enum: ['Inside Dhaka', 'Outside Dhaka'],
+      required: false,
+    },
+    deliveryCharge: {
+      type: Number,
+      required: false,
+    },
+    paymentMode: {
+      type: String,
+      enum: ['full', 'delivery_charge'],
+      required: false,
+    },
+    paymentChannel: {
+      type: String,
+      enum: ['bKash', 'Nagad', 'Rocket', 'Bank'],
+      required: false,
+    },
     items: [
       {
         productId: {
@@ -62,10 +81,10 @@ const OrderSchema = new Schema<Order>(
     },
     shippingAddress: {
       street: { type: String, required: [true, 'Street is required'] },
-      city: { type: String, required: [true, 'City is required'] },
-      state: { type: String, required: [true, 'State is required'] },
-      postalCode: { type: String, required: [true, 'Postal code is required'] },
-      country: { type: String, required: [true, 'Country is required'] },
+      city: { type: String, required: false },
+      state: { type: String, required: false },
+      postalCode: { type: String, required: false },
+      country: { type: String, required: false },
       phone: { type: String, required: [true, 'Phone is required'] },
       email: { type: String, required: false }, // Made optional for guest
     },
