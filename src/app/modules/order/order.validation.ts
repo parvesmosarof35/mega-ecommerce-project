@@ -34,6 +34,10 @@ const createGuestOrderSchema = z.object({
     }).optional(),
     notes: z.string().optional(),
     currency: z.string().default("usd"),
+    paymentMode: z.string().optional(),
+    paymentChannel: z.string().optional(),
+    deliveryArea: z.string().optional(),
+    deliveryCharge: z.number().optional(),
   }),
 });
 

@@ -31,6 +31,10 @@ export interface CreateOrderData {
   transactionId?: string;
   whatsappNumber?: string;
   extraInfo?: string;
+  paymentMode?: string;
+  paymentChannel?: string;
+  deliveryArea?: string;
+  deliveryCharge?: number;
 }
 
 export interface OrderListResponse {
@@ -72,6 +76,10 @@ export interface Order {
   currency: string;
   createdAt: Date;
   updatedAt: Date;
+  paymentMode?: string;
+  paymentChannel?: string;
+  deliveryArea?: string;
+  deliveryCharge?: number;
 }
 
 export interface OrderListResponse {

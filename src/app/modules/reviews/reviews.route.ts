@@ -6,6 +6,11 @@ import { USER_ROLE } from "../user/user.constant";
 const router = express.Router();
 
 // Admin only routes
+router.get("/analytics", auth(USER_ROLE.admin, USER_ROLE.superAdmin), ReviewControllers.getReviewAnalytics);
+router.get("/audit-logs", auth(USER_ROLE.admin, USER_ROLE.superAdmin), ReviewControllers.getReviewAuditLogs);
+router.patch("/status/:id", auth(USER_ROLE.admin, USER_ROLE.superAdmin), ReviewControllers.updateReviewStatus);
+router.patch("/bulk-status", auth(USER_ROLE.admin, USER_ROLE.superAdmin), ReviewControllers.bulkUpdateReviewStatuses);
+router.delete("/admin/:id/permanent", auth(USER_ROLE.superAdmin), ReviewControllers.permanentDeleteReview);
 router.delete("/admin/:id", auth(USER_ROLE.admin, USER_ROLE.superAdmin), ReviewControllers.deleteReview);
 
 // Authenticated user routes - Create, Update, Delete reviews

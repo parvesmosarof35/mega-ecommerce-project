@@ -3,6 +3,7 @@ import catchAsync from "../../utils/asyncCatch";
 import ReviewServices from "./reviews.services";
 import sendResponse from "../../utils/sendResponse";
 import status from "http-status";
+import users from "../user/user.model";
 
 /**
  * Controller: Create a new review
@@ -163,6 +164,107 @@ const getAverageRatingForProduct: RequestHandler = catchAsync(async (req, res) =
   });
 });
 
+/**
+ * Controller: Update status of a review (Admin only)
+ * Handles HTTP PATCH requests to /review/status/:id
+ */
+const updateReviewStatus: RequestHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { status: reviewStatus } = req.body;
+  const adminId = req.user.id;
+  const adminUser = await users.findById(adminId);
+  const adminName = adminUser?.fullname || adminUser?.email || "Unknown Admin";
+
+  const result = await ReviewServices.updateReviewStatusInDb(id, {
+    status: reviewStatus,
+    adminId,
+    adminName
+  });
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: `Review status updated to ${reviewStatus} successfully`,
+    data: result,
+  });
+});
+
+/**
+ * Controller: Bulk update statuses of reviews (Admin only)
+ * Handles HTTP PATCH requests to /review/bulk-status
+ */
+const bulkUpdateReviewStatuses: RequestHandler = catchAsync(async (req, res) => {
+  const { ids, status: reviewStatus } = req.body;
+  const adminId = req.user.id;
+  const adminUser = await users.findById(adminId);
+  const adminName = adminUser?.fullname || adminUser?.email || "Unknown Admin";
+
+  const result = await ReviewServices.bulkUpdateReviewStatusesInDb({
+    ids,
+    status: reviewStatus,
+    adminId,
+    adminName
+  });
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: `Bulk review status updated to ${reviewStatus} successfully`,
+    data: result,
+  });
+});
+
+/**
+ * Controller: Get review analytics for moderation (Admin only)
+ * Handles HTTP GET requests to /review/analytics
+ */
+const getReviewAnalytics: RequestHandler = catchAsync(async (req, res) => {
+  const result = await ReviewServices.getReviewAnalyticsFromDb();
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Review analytics retrieved successfully",
+    data: result,
+  });
+});
+
+/**
+ * Controller: Permanently delete a review (Super Admin only)
+ * Handles HTTP DELETE requests to /review/admin/:id/permanent
+ */
+const permanentDeleteReview: RequestHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const adminId = req.user.id;
+  const adminUser = await users.findById(adminId);
+  const adminName = adminUser?.fullname || adminUser?.email || "Unknown Super Admin";
+
+  const result = await ReviewServices.permanentDeleteReviewFromDb(id, { adminName });
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Review permanently deleted successfully",
+    data: result,
+  });
+});
+
+/**
+ * Controller: Get review moderation audit logs (Admin only)
+ * Handles HTTP GET requests to /review/audit-logs
+ */
+const getReviewAuditLogs: RequestHandler = catchAsync(async (req, res) => {
+  const result = await ReviewServices.getReviewAuditLogsFromDb(req.query);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Review audit logs retrieved successfully",
+    meta: result.meta,
+    data: result.result,
+  });
+});
+
 const ReviewControllers = {
   createReview,
   getAllReviews,
@@ -172,6 +274,11 @@ const ReviewControllers = {
   updateReview,
   deleteReview,
   getAverageRatingForProduct,
+  updateReviewStatus,
+  bulkUpdateReviewStatuses,
+  getReviewAnalytics,
+  permanentDeleteReview,
+  getReviewAuditLogs,
 };
 
 export default ReviewControllers;

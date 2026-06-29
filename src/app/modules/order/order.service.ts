@@ -21,6 +21,10 @@ const normalizeOrder = (doc: any): Order => {
     transactionId: doc?.transactionId,
     whatsappNumber: doc?.whatsappNumber,
     extraInfo: doc?.extraInfo,
+    paymentMode: doc?.paymentMode,
+    paymentChannel: doc?.paymentChannel,
+    deliveryArea: doc?.deliveryArea,
+    deliveryCharge: doc?.deliveryCharge,
     items,
   } as Order;
 };
@@ -44,10 +48,11 @@ const decrementStockForOrderItems = async (items: any[]) => {
 };
 
 class OrderService {
-  async createGuestOrder(orderData: CreateOrderData): Promise<OrderResponse> {
+  async createOrder(orderData: CreateOrderData): Promise<OrderResponse> {
     try {
       const order = await OrderModel.create({
-        isGuest: true,
+        customerId: orderData.customerId,
+        isGuest: orderData.isGuest !== undefined ? orderData.isGuest : !orderData.customerId,
         guestName: orderData.guestName,
         transactionId: orderData.transactionId,
         whatsappNumber: orderData.whatsappNumber,
@@ -60,19 +65,30 @@ class OrderService {
         paymentStatus: PAYMENT_STATUS.PENDING,
         notes: orderData.notes,
         currency: orderData.currency || DEFAULT_CURRENCY,
+        paymentMode: orderData.paymentMode,
+        paymentChannel: orderData.paymentChannel,
+        deliveryArea: orderData.deliveryArea,
+        deliveryCharge: orderData.deliveryCharge,
       });
 
       return {
         status: true,
-        message: 'Guest order created successfully',
+        message: 'Order created successfully',
         data: { order: normalizeOrder(order.toObject()) },
       };
     } catch (error: any) {
       return {
         status: false,
-        message: error.message || 'Failed to create guest order',
+        message: error.message || 'Failed to create order',
       };
     }
+  }
+
+  async createGuestOrder(orderData: CreateOrderData): Promise<OrderResponse> {
+    return this.createOrder({
+      ...orderData,
+      isGuest: true,
+    });
   }
 
   async getOrderById(orderId: string): Promise<OrderResponse> {
